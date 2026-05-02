@@ -195,20 +195,24 @@ export function createApp(config = {}) {
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Incident ID</th><th>Title</th><th>Severity</th><th>Status</th><th>Assigned To</th><th>Created Date</th><th>Actions</th></tr>
+              <tr><th>Incident ID</th><th>Title</th><th>Community</th><th>Severity</th><th>Status</th><th>Assigned To</th><th>Created Date</th><th>Case</th><th>Actions</th></tr>
             </thead>
             <tbody>
               ${incidents.map((incident) => `
                 <tr>
                   <td class="mono">${escapeHtml(incident.incident_id)}</td>
                   <td>${escapeHtml(incident.title)} ${incident.escalated ? '<span class="pill escalated">Escalated</span>' : ''}</td>
+                  <td><span class="pill community-pill">${escapeHtml(incident.community || 'Unassigned')}</span></td>
                   <td><span class="severity-badge ${severityClass(incident.severity)}">${escapeHtml(incident.severity)}</span></td>
                   <td><span class="pill ${statusPillClass(incident.status)}">${escapeHtml(incident.status)}</span></td>
                   <td>${escapeHtml(incident.assigned_to)}</td>
                   <td>${escapeHtml(formatTime(incident.created_date))}</td>
+                  <td>${incident.case_id ? `<span class="mono case-number">${escapeHtml(incident.case_id)}</span>` : '<span class="muted">No case</span>'}</td>
                   <td><div class="actions">
                     <button class="btn" data-action="view-incident" data-incident-id="${escapeHtml(incident.incident_id)}"><i class="fas fa-eye"></i> View</button>
-                    <button class="btn btn-primary" data-action="create-case" data-incident-id="${escapeHtml(incident.incident_id)}" ${incident.case_id ? 'disabled' : ''}><i class="fas fa-folder-plus"></i> Create Case</button>
+                    ${incident.case_id
+                      ? `<button class="btn" data-action="view-incident" data-incident-id="${escapeHtml(incident.incident_id)}"><i class="fas fa-folder-open"></i> ${escapeHtml(incident.case_id)}</button>`
+                      : `<button class="btn btn-primary" data-action="create-case" data-incident-id="${escapeHtml(incident.incident_id)}"><i class="fas fa-folder-plus"></i> Create Case</button>`}
                   </div></td>
                 </tr>
               `).join('')}
@@ -235,6 +239,7 @@ export function createApp(config = {}) {
       <div class="grid kv-grid" style="margin-bottom:16px;">
         <div class="field-panel"><div class="field-label">Severity</div><div class="field-value"><span class="severity-badge ${severityClass(incident.severity)}">${escapeHtml(incident.severity)}</span></div></div>
         <div class="field-panel"><div class="field-label">Status</div><div class="field-value"><span class="pill ${statusPillClass(incident.status)}">${escapeHtml(incident.status)}</span></div></div>
+        <div class="field-panel"><div class="field-label">Community</div><div class="field-value"><span class="pill community-pill">${escapeHtml(incident.community || 'Unassigned')}</span></div></div>
         <div class="field-panel"><div class="field-label">Case</div><div class="field-value">${caseItem ? `<span class="mono">${escapeHtml(caseItem.case_id)}</span>` : 'No case created'}</div></div>
       </div>
 

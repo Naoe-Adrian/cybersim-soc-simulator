@@ -1,5 +1,5 @@
 export class CaseService {
-  static MAX_ALERTS = 10;
+  static MAX_ALERTS = 5;
 
   constructor({ alertsUrl, incidentsUrl, casesUrl, rulesUrl } = {}) {
     this.urls = { alertsUrl, incidentsUrl, casesUrl, rulesUrl };
@@ -160,6 +160,7 @@ export class CaseService {
       title: template.name,
       severity: template.severity,
       status: 'New',
+      community: this.#randomCommunity(),
       assigned_to: 'Unassigned',
       created_date: now.toISOString(),
       alert_ids: [id],
@@ -272,5 +273,10 @@ export class CaseService {
   #randomUser() {
     const users = ['jdelacruz', 'admin', 'msantos', 'rreyes', 'svc-backup'];
     return users[Math.floor(Math.random() * users.length)];
+  }
+
+  #randomCommunity() {
+    const communities = ['PUPT', 'PUP-STA MESA', 'PUPSJ'];
+    return communities[Math.floor(Math.random() * communities.length)];
   }
 }
