@@ -5,59 +5,70 @@
     "severity": "High",
     "mitre": "T1110 - Brute Force",
     "kill_chain_phase": "Reconnaissance",
-    "description": "More than five failed login attempts were observed against the same user within two minutes.",
-    "rule": "IF failed_logins > 5 in 2 minutes THEN trigger high-severity brute force alert",
+    "description": "More than five failed login attempts were observed against the same user within two minutes, but the source IP is a known VPN endpoint for a false-positive triage example.",
+    "rule": "IF failed_logins > 5 in 2 minutes THEN trigger high-severity brute force alert; downgrade if source_ip is a clean known VPN used by the employee",
+    "false_positive_context": {
+      "expected_verdict": "False Positive",
+      "vpn_provider": "NordVPN",
+      "vpn_hostname": "us8360.nordvpn.com",
+      "vpn_ip": "138.199.52.83",
+      "reputation_source": "VirusTotal-style IP reputation check",
+      "reputation_summary": "Clean demo VPN endpoint: malicious=0, suspicious=0",
+      "analyst_reasoning": "Failed logins came from a known VPN endpoint and can be explained by the user mistyping a password while connected through VPN."
+    },
     "hints": [
       "Check source IP reputation and geolocation.",
+      "Verify whether the source IP belongs to an approved VPN provider.",
       "Verify whether the target user normally logs in from this network.",
       "Look for successful login immediately after the failed attempts.",
-      "Review authentication logs for password spraying against other users."
+      "Review authentication logs for password spraying against other users.",
+      "If the VPN IP is clean and there is no password spraying, document this as a false positive."
     ],
     "logs": [
       {
         "timestamp": "2026-05-02T09:13:05+08:00",
-        "source_ip": "203.0.113.45",
+        "source_ip": "138.199.52.83",
         "destination_ip": "10.20.1.14",
         "user": "jdelacruz",
         "action": "login_attempt",
         "status": "failed",
-        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+        "raw_log": "auth gw01 src=138.199.52.83 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password vpn_provider=NordVPN vpn_host=us8360.nordvpn.com"
       },
       {
         "timestamp": "2026-05-02T09:13:22+08:00",
-        "source_ip": "203.0.113.45",
+        "source_ip": "138.199.52.83",
         "destination_ip": "10.20.1.14",
         "user": "jdelacruz",
         "action": "login_attempt",
         "status": "failed",
-        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+        "raw_log": "auth gw01 src=138.199.52.83 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password vpn_provider=NordVPN vpn_host=us8360.nordvpn.com"
       },
       {
         "timestamp": "2026-05-02T09:13:39+08:00",
-        "source_ip": "203.0.113.45",
+        "source_ip": "138.199.52.83",
         "destination_ip": "10.20.1.14",
         "user": "jdelacruz",
         "action": "login_attempt",
         "status": "failed",
-        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+        "raw_log": "auth gw01 src=138.199.52.83 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password vpn_provider=NordVPN vpn_host=us8360.nordvpn.com"
       },
       {
         "timestamp": "2026-05-02T09:14:01+08:00",
-        "source_ip": "203.0.113.45",
+        "source_ip": "138.199.52.83",
         "destination_ip": "10.20.1.14",
         "user": "jdelacruz",
         "action": "login_attempt",
         "status": "failed",
-        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+        "raw_log": "auth gw01 src=138.199.52.83 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password vpn_provider=NordVPN vpn_host=us8360.nordvpn.com"
       },
       {
         "timestamp": "2026-05-02T09:14:42+08:00",
-        "source_ip": "203.0.113.45",
+        "source_ip": "138.199.52.83",
         "destination_ip": "10.20.1.14",
         "user": "jdelacruz",
         "action": "threshold_exceeded",
-        "status": "alerted",
-        "raw_log": "rule=multiple_failed_logins count=8 window=120s user=jdelacruz src=203.0.113.45 severity=high"
+        "status": "false_positive_candidate",
+        "raw_log": "rule=multiple_failed_logins count=8 window=120s user=jdelacruz src=138.199.52.83 severity=high vpn_provider=NordVPN vpn_host=us8360.nordvpn.com reputation=clean vt_malicious=0 vt_suspicious=0 triage_hint=false_positive_candidate"
       }
     ]
   },
