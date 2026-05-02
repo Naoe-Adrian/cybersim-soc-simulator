@@ -1,4 +1,6 @@
 export class CaseService {
+  static MAX_ALERTS = 10;
+
   constructor({ alertsUrl, incidentsUrl, casesUrl } = {}) {
     this.urls = { alertsUrl, incidentsUrl, casesUrl };
     this.alerts = [];
@@ -110,6 +112,8 @@ export class CaseService {
   }
 
   addGeneratedAlert() {
+    if (this.alerts.length >= CaseService.MAX_ALERTS) return null;
+
     const template = this.alerts[Math.floor(Math.random() * this.alerts.length)];
     if (!template) return null;
 

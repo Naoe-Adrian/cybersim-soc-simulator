@@ -514,6 +514,12 @@ export function createApp(config = {}) {
     simulationTimer = setInterval(() => {
       const generated = svc.addGeneratedAlert();
       if (generated) notify('New alert generated', `${generated.alert.name} grouped into ${generated.incident.incident_id}`);
+      else {
+        stopSimulation();
+        const toggle = $('simulationToggle');
+        if (toggle) toggle.checked = false;
+        notify('Alert cap reached', 'Simulation stopped at the maximum of 10 alerts.');
+      }
     }, 8000);
   }
 
