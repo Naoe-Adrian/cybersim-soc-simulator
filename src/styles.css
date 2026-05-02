@@ -392,6 +392,16 @@ code {
   background: rgba(245, 158, 11, 0.22);
 }
 
+.community-pill {
+  color: #ccfbf1;
+  background: rgba(13, 148, 136, 0.22);
+}
+
+.case-number {
+  color: #bfdbfe;
+  font-weight: 800;
+}
+
 .btn,
 .icon-button,
 .segmented button {
