@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alertsUrl: './assets/scenarios/alerts.json',
     incidentsUrl: './assets/scenarios/incidents.json',
     casesUrl: './assets/scenarios/cases.json',
+    rulesUrl: './assets/scenarios/rules.json',
   });
 
   app.init().catch((error) => {

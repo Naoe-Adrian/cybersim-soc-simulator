@@ -1,0 +1,38 @@
+[
+  {
+    "rule_id": "RULE-AUTH-FAILED-LOGIN",
+    "name": "Multiple Failed Logins",
+    "severity": "High",
+    "mitre": "T1110 - Brute Force",
+    "kill_chain_phase": "Reconnaissance",
+    "summary": "YARA-L style rule Multiple_Failed_Logins triggers when one user has more than five failed login attempts from the same source IP within two minutes.",
+    "rule_code": "rule Multiple_Failed_Logins {\n  meta:\n    title = \"Multiple Failed Logins\"\n    id = \"CYBERSIM-AUTH-0001\"\n    status = \"experimental\"\n    description = \"Detects repeated failed VPN login attempts for the same user and source IP\"\n    author = \"CyberSim SOC\"\n    date = \"2026-05-02\"\n    mitre = \"T1110\"\n    severity = \"high\"\n  events:\n    $e.action = \"login_attempt\"\n    $e.status = \"failed\"\n    $e.user = $user\n    $e.source_ip = $source_ip\n  match:\n    $user, $source_ip over 2m\n  condition:\n    #e > 5\n}"
+  },
+  {
+    "rule_id": "RULE-MAL-CRACKED-SOFTWARE",
+    "name": "Cracked Software Download",
+    "severity": "High",
+    "mitre": "T1204 - User Execution",
+    "kill_chain_phase": "Delivery",
+    "summary": "YARA rule Cracked_Software_Download triggers when cracked software filenames or known malicious SHA-256 indicators are detected.",
+    "rule_code": "rule Cracked_Software_Download {\n  meta:\n    title = \"Cracked Games and Office Crack Download\"\n    id = \"CYBERSIM-MAL-0001\"\n    status = \"experimental\"\n    description = \"Detects cracked game and Office activator downloads by filename and known malicious SHA-256 values\"\n    author = \"CyberSim SOC\"\n    date = \"2026-05-02\"\n    mitre = \"T1204\"\n    severity = \"high\"\n  strings:\n    $crack = \"crack\" nocase wide ascii\n    $game = \"game\" nocase wide ascii\n    $office = \"office\" nocase wide ascii\n    $kmsauto = \"KMSAuto\" nocase wide ascii\n    $hash_gamehack = \"ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144\" nocase ascii\n    $hash_kmsauto = \"3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb\" nocase ascii\n  condition:\n    any of ($hash_*) or ($crack and ($game or $office or $kmsauto))\n}"
+  },
+  {
+    "rule_id": "RULE-CRED-PASSWORD-FILE",
+    "name": "Password File Opened",
+    "severity": "High",
+    "mitre": "T1552.001 - Credentials In Files",
+    "kill_chain_phase": "Credential Access",
+    "summary": "YARA rule Credential_File_Opened triggers when a scanned filename or file content contains English password indicators or the French phrase mot de passe.",
+    "rule_code": "rule Credential_File_Opened {\n  meta:\n    title = \"Password File Opened\"\n    id = \"CYBERSIM-CRED-0001\"\n    status = \"experimental\"\n    description = \"Detects files likely storing passwords using English and French password terms\"\n    author = \"CyberSim SOC\"\n    date = \"2026-05-02\"\n    mitre = \"T1552.001\"\n    kill_chain_phase = \"Credential Access\"\n    severity = \"high\"\n  strings:\n    $filename_password = /(?i)(^|[\\\\\\/_. -])passwords?([\\\\\\/_. -]|$)/\n    $filename_mot_de_passe = /(?i)(^|[\\\\\\/_. -])mot[ _.-]?de[ _.-]?passe([\\\\\\/_. -]|$)/\n    $content_password = \"password\" nocase wide ascii\n    $content_mot_de_passe = \"mot de passe\" nocase wide ascii\n  condition:\n    any of them\n}"
+  },
+  {
+    "rule_id": "RULE-PS-ENCODED-COMMAND",
+    "name": "Suspicious PowerShell Encoded Command",
+    "severity": "Medium",
+    "mitre": "T1059 - Command and Scripting Interpreter",
+    "kill_chain_phase": "Exploitation",
+    "summary": "YARA rule Suspicious_PowerShell_EncodedCommand triggers when PowerShell command content contains encoded-command execution indicators.",
+    "rule_code": "rule Suspicious_PowerShell_EncodedCommand {\n  meta:\n    title = \"Suspicious PowerShell Execution\"\n    id = \"CYBERSIM-PS-0001\"\n    status = \"experimental\"\n    description = \"Detects PowerShell encoded-command execution commonly used for script obfuscation\"\n    author = \"CyberSim SOC\"\n    date = \"2026-05-02\"\n    mitre = \"T1059\"\n    severity = \"medium\"\n  strings:\n    $powershell = \"powershell.exe\" nocase wide ascii\n    $encoded_full = \"-EncodedCommand\" nocase wide ascii\n    $encoded_short = \" -enc \" nocase wide ascii\n    $nop = \"-NoP\" nocase wide ascii\n  condition:\n    $powershell and any of ($encoded_*)\n}"
+  }
+]

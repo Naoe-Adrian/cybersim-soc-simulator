@@ -467,8 +467,23 @@ code {
 
 .feed-item {
   display: grid;
-  grid-template-columns: 96px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.feed-item > * {
+  min-width: 0;
+}
+
+.feed-item strong,
+.feed-item .muted {
+  overflow-wrap: anywhere;
+}
+
+.feed-item > span.muted {
+  grid-column: 2;
+  margin-top: -8px;
 }
 
 .chart {
@@ -502,6 +517,65 @@ code {
   white-space: pre-wrap;
 }
 
+.code-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a111b;
+}
+
+.code-header {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  color: #cbd5e1;
+  background: #111a25;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+}
+
+.code-snippet {
+  margin: 0;
+  max-height: 460px;
+  overflow: auto;
+  padding: 0;
+  color: #cfe8ff;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.code-line {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  min-width: max-content;
+}
+
+.line-no {
+  padding-right: 12px;
+  color: #5f7085;
+  text-align: right;
+  user-select: none;
+}
+
+.line-code {
+  padding-right: 18px;
+  white-space: pre;
+}
+
+.code-key {
+  color: #86efac;
+  font-weight: 800;
+}
+
+.code-string {
+  color: #bfdbfe;
+}
+
 textarea,
 select,
 input[type="text"] {
@@ -510,6 +584,48 @@ input[type="text"] {
   border-radius: 7px;
   background: #0b1524;
   color: var(--text);
+}
+
+.rule-tuning-grid {
+  align-items: start;
+}
+
+.rule-list {
+  display: grid;
+  gap: 1px;
+}
+
+.rule-list-item {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.rule-list-item:hover,
+.rule-list-item.active {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.rule-summary-editor {
+  min-height: 94px;
+  margin-top: 7px;
+}
+
+.rule-code-editor {
+  min-height: 360px;
+  margin-top: 7px;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre;
+  overflow: auto;
 }
 
 textarea {

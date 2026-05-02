@@ -6,7 +6,7 @@
     "mitre": "T1110 - Brute Force",
     "kill_chain_phase": "Reconnaissance",
     "description": "More than five failed login attempts were observed against the same user within two minutes, but the source IP is a known VPN endpoint for a false-positive triage example.",
-    "rule": "IF failed_logins > 5 in 2 minutes THEN trigger high-severity brute force alert; downgrade if source_ip is a clean known VPN used by the employee",
+    "rule_id": "RULE-AUTH-FAILED-LOGIN",
     "false_positive_context": {
       "expected_verdict": "False Positive",
       "vpn_provider": "NordVPN",
@@ -79,7 +79,7 @@
     "mitre": "T1204 - User Execution",
     "kill_chain_phase": "Delivery",
     "description": "A user downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
-    "rule": "IF downloaded_file_hash IN threat_intel_hashes AND file_name indicates cracked software THEN trigger high-severity malware delivery alert",
+    "rule_id": "RULE-MAL-CRACKED-SOFTWARE",
     "threat_intel_matches": [
       {
         "file_name": "setup.exe",
@@ -155,8 +155,7 @@
     "mitre": "T1552.001 - Credentials In Files",
     "kill_chain_phase": "Credential Access",
     "description": "A user opened a file named passwords.xlsx from the Documents folder, indicating possible exposure of stored credentials.",
-    "rule": "YARA rule Credential_File_Opened matches when the scanned file path/name contains password, passwords, credential, credentials, creds, secrets, or keyring, or when file content contains credential-like labels.",
-    "yara_rule": "rule Credential_File_Opened {\n  meta:\n    description = \"Detects likely credential/password files by filename or credential-like content\"\n    severity = \"High\"\n    mitre = \"T1552.001 - Credentials In Files\"\n    kill_chain_phase = \"Credential Access\"\n    author = \"CyberSim SOC\"\n  strings:\n    $name_password = /(?i)(^|[\\\\\\/_. -])passwords?([\\\\\\/_. -]|$)/\n    $name_credentials = /(?i)(^|[\\\\\\/_. -])credentials?([\\\\\\/_. -]|$)/\n    $name_creds = /(?i)(^|[\\\\\\/_. -])creds([\\\\\\/_. -]|$)/\n    $name_secrets = /(?i)(^|[\\\\\\/_. -])secrets?([\\\\\\/_. -]|$)/\n    $content_user = /(?i)(username|user|login|account)\\s*[:=,]/\n    $content_pass = /(?i)(password|passwd|pwd|passphrase)\\s*[:=,]/\n    $content_secret = /(?i)(api[_-]?key|secret|token)\\s*[:=,]/\n  condition:\n    any of ($name_*) or ($content_user and ($content_pass or $content_secret))\n}",
+    "rule_id": "RULE-CRED-PASSWORD-FILE",
     "hints": [
       "Confirm whether passwords.xlsx contains real credentials.",
       "Check file access history and whether the file was copied, uploaded, or emailed.",
@@ -218,7 +217,7 @@
     "mitre": "T1059 - Command and Scripting Interpreter",
     "kill_chain_phase": "Exploitation",
     "description": "Base64 encoded PowerShell execution was detected on an endpoint.",
-    "rule": "IF base64 encoded PowerShell detected THEN trigger medium-severity script execution alert",
+    "rule_id": "RULE-PS-ENCODED-COMMAND",
     "hints": [
       "Decode the PowerShell command and identify its intent.",
       "Check parent process and whether the user launched it interactively.",

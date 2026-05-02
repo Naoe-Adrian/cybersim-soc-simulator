@@ -1,27 +1,46 @@
 export class CaseService {
-  static MAX_ALERTS = 10;
+  static MAX_ALERTS = 5;
 
-  constructor({ alertsUrl, incidentsUrl, casesUrl } = {}) {
-    this.urls = { alertsUrl, incidentsUrl, casesUrl };
+  constructor({ alertsUrl, incidentsUrl, casesUrl, rulesUrl } = {}) {
+    this.urls = { alertsUrl, incidentsUrl, casesUrl, rulesUrl };
     this.alerts = [];
     this.incidents = [];
     this.cases = [];
+    this.rules = [];
     this.liveFeed = [];
     this.subscribers = new Set();
     this.generatedAlertCounter = 9000;
   }
 
   async init() {
-    const [alerts, incidents, cases] = await Promise.all([
+    const [alerts, incidents, cases, rules] = await Promise.all([
       this.#loadJson(this.urls.alertsUrl, []),
       this.#loadJson(this.urls.incidentsUrl, []),
       this.#loadJson(this.urls.casesUrl, []),
+      this.#loadJson(this.urls.rulesUrl, []),
     ]);
 
     this.alerts = alerts;
     this.incidents = incidents;
     this.cases = cases;
+    this.rules = rules;
     this.liveFeed = this.#buildInitialFeed();
+  }
+
+  getRules() {
+    return this.rules.map((rule) => ({
+      ...rule,
+      alert_count: this.alerts.filter((alert) => alert.rule_id === rule.rule_id).length,
+    }));
+  }
+
+  updateRule(ruleId, { summary, rule_code }) {
+    const rule = this.rules.find((item) => item.rule_id === ruleId);
+    if (!rule) return null;
+    rule.summary = summary;
+    rule.rule_code = rule_code;
+    this.notify();
+    return rule;
   }
 
   subscribe(fn) {
@@ -34,7 +53,7 @@ export class CaseService {
   }
 
   getAlerts() {
-    return [...this.alerts];
+    return this.alerts.map((alert) => this.#alertWithRule(alert));
   }
 
   getIncidents() {
@@ -53,6 +72,7 @@ export class CaseService {
     if (!incident) return [];
     return incident.alert_ids
       .map((alertId) => this.alerts.find((alert) => alert.alert_id === alertId))
+      .map((alert) => this.#alertWithRule(alert))
       .filter(Boolean);
   }
 
@@ -152,6 +172,17 @@ export class CaseService {
     this.liveFeed = this.liveFeed.slice(0, 18);
     this.notify();
     return { alert, incident };
+  }
+
+  #alertWithRule(alert) {
+    if (!alert) return null;
+    const rule = this.rules.find((item) => item.rule_id === alert.rule_id);
+    return {
+      ...alert,
+      rule: rule?.summary || 'Rule definition not found.',
+      yara_rule: rule?.rule_code || '',
+      rule_name: rule?.name || '',
+    };
   }
 
   getDashboardStats() {

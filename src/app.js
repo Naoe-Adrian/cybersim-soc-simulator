@@ -5,6 +5,7 @@ export function createApp(config = {}) {
   const svc = new CaseService(config);
   let currentView = 'overview';
   let selectedIncidentId = null;
+  let selectedRuleId = null;
   let selectedRange = '24H';
   let logMode = 'table';
   let simulationTimer = null;
@@ -99,6 +100,22 @@ export function createApp(config = {}) {
       selectedRange = dataset.range;
       renderCurrentView();
     }
+
+    if (action === 'select-rule') {
+      selectedRuleId = dataset.ruleId;
+      renderCurrentView();
+    }
+
+    if (action === 'save-rule') {
+      const summary = $('ruleSummaryEditor')?.value || '';
+      const ruleCode = $('ruleCodeEditor')?.value || '';
+      svc.updateRule(dataset.ruleId, { summary, rule_code: ruleCode });
+      notify('Rule updated', `${dataset.ruleId} tuning changes apply to every linked alert.`);
+    }
+
+    if (action === 'reset-rule') {
+      notify('Rule reset note', 'Reload the page to restore the original rule from alerts.json.');
+    }
   }
 
   function switchView(view) {
@@ -119,6 +136,7 @@ export function createApp(config = {}) {
     else if (currentView === 'incidents') main.innerHTML = incidentsView();
     else if (currentView === 'incident-detail') main.innerHTML = incidentDetailView();
     else if (currentView === 'threat-feed') main.innerHTML = threatFeedView();
+    else if (currentView === 'rule-tuning') main.innerHTML = ruleTuningView();
     else main.innerHTML = moduleView(currentView);
 
     if (currentView === 'overview' || currentView === 'analytics') drawTrendChart();
@@ -285,6 +303,68 @@ export function createApp(config = {}) {
     `;
   }
 
+  function ruleTuningView() {
+    const rules = svc.getRules();
+    if (!selectedRuleId || !rules.some((rule) => rule.rule_id === selectedRuleId)) {
+      selectedRuleId = rules[0]?.rule_id || null;
+    }
+
+    const selected = rules.find((rule) => rule.rule_id === selectedRuleId);
+
+    return `
+      <h1 class="page-title">Rule Tuning</h1>
+      <p class="page-subtitle">Review every alert rule and fine-tune the detection logic for a demo investigation.</p>
+
+      <div class="grid two-col rule-tuning-grid">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Alert Rules</h2>
+            <span class="muted">${rules.length} rules</span>
+          </div>
+          <div class="rule-list">
+            ${rules.map((rule) => `
+              <button class="rule-list-item ${rule.rule_id === selectedRuleId ? 'active' : ''}" data-action="select-rule" data-rule-id="${escapeHtml(rule.rule_id)}">
+                <span class="mono">${escapeHtml(rule.rule_id)}</span>
+                <strong>${escapeHtml(rule.name)}</strong>
+                <span class="muted">${escapeHtml(rule.mitre)} | ${escapeHtml(rule.severity)} | ${escapeHtml(rule.alert_count)} linked alerts</span>
+              </button>
+            `).join('')}
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">${escapeHtml(selected?.name || 'No Rule Selected')}</h2>
+            <div class="actions">
+              <button class="btn" data-action="reset-rule"><i class="fas fa-rotate-left"></i> Reset</button>
+              <button class="btn btn-primary" data-action="save-rule" data-rule-id="${escapeHtml(selected?.rule_id || '')}"><i class="fas fa-floppy-disk"></i> Save Tuning</button>
+            </div>
+          </div>
+          <div class="card-body">
+            ${selected ? `
+              <div class="grid kv-grid" style="margin-bottom:12px;">
+                <div class="field-panel"><div class="field-label">Rule ID</div><div class="field-value mono">${escapeHtml(selected.rule_id)}</div></div>
+                <div class="field-panel"><div class="field-label">MITRE</div><div class="field-value">${escapeHtml(selected.mitre)}</div></div>
+                <div class="field-panel"><div class="field-label">Linked Alerts</div><div class="field-value">${escapeHtml(selected.alert_count)}</div></div>
+              </div>
+
+              <label class="field-label" for="ruleSummaryEditor">Detection Summary</label>
+              <textarea class="rule-summary-editor" id="ruleSummaryEditor">${escapeHtml(selected.summary)}</textarea>
+
+              <label class="field-label" for="ruleCodeEditor" style="display:block; margin-top:14px;">Rule Code</label>
+              <textarea class="rule-code-editor" id="ruleCodeEditor" spellcheck="false">${escapeHtml(selected.rule_code)}</textarea>
+
+              <div style="margin-top:14px;">
+                <div class="field-label">Preview</div>
+                ${codeSnippet(selected.rule_code, selected.rule_code.includes('\n  events:') ? 'yara-l' : 'yara')}
+              </div>
+            ` : '<p class="muted">No rules available.</p>'}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function moduleView(view) {
     const workload = svc.getWorkload();
     const titles = {
@@ -372,7 +452,8 @@ export function createApp(config = {}) {
         <div class="field-label" style="margin-top:12px;">Description</div>
         <div class="field-value">${escapeHtml(alert.description)}</div>
         <div class="field-label" style="margin-top:12px;">Detection Rule</div>
-        <div class="field-value"><code>${escapeHtml(alert.rule)}</code></div>
+        <div class="field-value">${escapeHtml(alert.rule)}</div>
+        ${alert.yara_rule ? codeSnippet(alert.yara_rule, alert.yara_rule.includes('\n  events:') ? 'yara-l' : 'yara') : ''}
         <div class="grid kv-grid" style="margin-top:12px;">
           <div><div class="field-label">MITRE Technique</div><div class="field-value"><code>${escapeHtml(alert.mitre)}</code></div></div>
           <div><div class="field-label">Kill Chain Phase</div><div class="field-value">${escapeHtml(alert.kill_chain_phase)}</div></div>
@@ -380,6 +461,28 @@ export function createApp(config = {}) {
         </div>
       </div>
     `;
+  }
+
+  function codeSnippet(source, language = 'code') {
+    const lines = String(source || '').split('\n');
+    return `
+      <div class="code-card" style="margin-top:12px;">
+        <div class="code-header">
+          <span>${escapeHtml(lines.length)} lines</span>
+          <span>${escapeHtml(language)}</span>
+        </div>
+        <pre class="code-snippet">${lines.map((line, index) => `<span class="code-line"><span class="line-no">${index + 1}</span><span class="line-code">${highlightCode(line)}</span></span>`).join('')}</pre>
+      </div>
+    `;
+  }
+
+  function highlightCode(line) {
+    const safe = escapeHtml(line);
+    const match = safe.match(/^(\s*)([A-Za-z_][\w-]*)(\s*[:=])?(.*)$/);
+    if (!match) return safe;
+    const [, indent, key, separator = '', rest = ''] = match;
+    const highlightedRest = rest.replace(/(&quot;.*?&quot;|\/.*\/|#.*$)/g, '<span class="code-string">$1</span>');
+    return `${indent}<span class="code-key">${key}</span>${separator}${highlightedRest}`;
   }
 
   function logsView(logs) {
