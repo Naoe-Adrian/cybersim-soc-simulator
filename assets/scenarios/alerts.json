@@ -63,17 +63,31 @@
   },
   {
     "alert_id": "A-1002",
-    "name": "Malicious File Download",
+    "name": "Cracked Games and Office Crack Download",
     "severity": "High",
     "mitre": "T1204 - User Execution",
     "kill_chain_phase": "Delivery",
-    "description": "A downloaded file hash matched a threat intelligence indicator for known malware.",
-    "rule": "IF file_hash matches threat intel THEN trigger high-severity malware delivery alert",
+    "description": "A user downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
+    "rule": "IF downloaded_file_hash IN threat_intel_hashes AND file_name indicates cracked software THEN trigger high-severity malware delivery alert",
+    "threat_intel_matches": [
+      {
+        "file_name": "setup.exe",
+        "category": "cracked_game_hack",
+        "sha256": "ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144",
+        "classification": "Hack.Win32.GameHack.ca"
+      },
+      {
+        "file_name": "KMSAuto Net.exe",
+        "category": "cracked_microsoft_office_activator",
+        "sha256": "3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb",
+        "classification": "Suspicious AutoKMS / illegal Microsoft activation tool"
+      }
+    ],
     "hints": [
-      "Confirm the hash against current threat intelligence.",
-      "Identify the user and browser process that initiated the download.",
-      "Check whether the file executed or spawned child processes.",
-      "Inspect proxy, EDR, and DNS logs for related indicators."
+      "Confirm both SHA-256 values against threat intelligence.",
+      "Interview the user about cracked game and Office activator downloads.",
+      "Check whether setup.exe or KMSAuto Net.exe executed or spawned child processes.",
+      "Inspect proxy, EDR, and DNS logs for additional cracked-software indicators."
     ],
     "logs": [
       {
@@ -83,7 +97,7 @@
         "user": "msantos",
         "action": "http_download",
         "status": "completed",
-        "raw_log": "proxy src=10.20.8.55 dst=198.51.100.77 user=msantos url=/invoice_review.exe bytes=7340032"
+        "raw_log": "proxy src=10.20.8.55 dst=198.51.100.77 user=msantos url=/games/fps-crack/setup.exe bytes=10025920"
       },
       {
         "timestamp": "2026-05-02T10:21:18+08:00",
@@ -92,7 +106,7 @@
         "user": "msantos",
         "action": "file_write",
         "status": "success",
-        "raw_log": "edr host=FIN-LT-044 path=C:\\Users\\msantos\\Downloads\\invoice_review.exe sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef"
+        "raw_log": "edr host=FIN-LT-044 path=C:\\Users\\msantos\\Downloads\\setup.exe sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144"
       },
       {
         "timestamp": "2026-05-02T10:21:26+08:00",
@@ -101,25 +115,25 @@
         "user": "msantos",
         "action": "hash_lookup",
         "status": "malicious_match",
-        "raw_log": "ti_lookup sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef verdict=malware family=loader"
+        "raw_log": "ti_lookup sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144 verdict=malicious family=GameHack source=threat_intel"
       },
       {
         "timestamp": "2026-05-02T10:21:41+08:00",
         "source_ip": "10.20.8.55",
-        "destination_ip": "10.20.8.55",
+        "destination_ip": "203.0.113.88",
         "user": "msantos",
-        "action": "process_start",
-        "status": "blocked",
-        "raw_log": "edr host=FIN-LT-044 process=invoice_review.exe action=blocked policy=malware_prevention"
+        "action": "second_download",
+        "status": "completed",
+        "raw_log": "proxy src=10.20.8.55 dst=203.0.113.88 user=msantos url=/office2024/KMSAuto%20Net.exe sha256=3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb"
       },
       {
         "timestamp": "2026-05-02T10:22:03+08:00",
         "source_ip": "10.20.8.55",
-        "destination_ip": "198.51.100.77",
+        "destination_ip": "10.20.8.55",
         "user": "msantos",
         "action": "alert_triggered",
         "status": "true",
-        "raw_log": "rule=malicious_file_download host=FIN-LT-044 sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef severity=high"
+        "raw_log": "rule=cracked_software_malicious_hash host=FIN-LT-044 hashes=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144,3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb severity=high"
       }
     ]
   },
