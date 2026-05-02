@@ -155,7 +155,8 @@
     "mitre": "T1552.001 - Credentials In Files",
     "kill_chain_phase": "Credential Access",
     "description": "A user opened a file named passwords.xlsx from the Documents folder, indicating possible exposure of stored credentials.",
-    "rule": "IF file_open path matches *password* OR *credentials* THEN trigger high-severity credential exposure alert",
+    "rule": "YARA rule Credential_File_Opened matches when the scanned file path/name contains password, passwords, credential, credentials, creds, secrets, or keyring, or when file content contains credential-like labels.",
+    "yara_rule": "rule Credential_File_Opened {\n  meta:\n    description = \"Detects likely credential/password files by filename or credential-like content\"\n    severity = \"High\"\n    mitre = \"T1552.001 - Credentials In Files\"\n    kill_chain_phase = \"Credential Access\"\n    author = \"CyberSim SOC\"\n  strings:\n    $name_password = /(?i)(^|[\\\\\\/_. -])passwords?([\\\\\\/_. -]|$)/\n    $name_credentials = /(?i)(^|[\\\\\\/_. -])credentials?([\\\\\\/_. -]|$)/\n    $name_creds = /(?i)(^|[\\\\\\/_. -])creds([\\\\\\/_. -]|$)/\n    $name_secrets = /(?i)(^|[\\\\\\/_. -])secrets?([\\\\\\/_. -]|$)/\n    $content_user = /(?i)(username|user|login|account)\\s*[:=,]/\n    $content_pass = /(?i)(password|passwd|pwd|passphrase)\\s*[:=,]/\n    $content_secret = /(?i)(api[_-]?key|secret|token)\\s*[:=,]/\n  condition:\n    any of ($name_*) or ($content_user and ($content_pass or $content_secret))\n}",
     "hints": [
       "Confirm whether passwords.xlsx contains real credentials.",
       "Check file access history and whether the file was copied, uploaded, or emailed.",
