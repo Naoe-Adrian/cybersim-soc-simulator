@@ -11,12 +11,22 @@
   },
   {
     "incident_id": "INC-1002",
-    "title": "Cracked Games and Office Crack Download on Finance Laptop",
+    "title": "Adrian Naoe Downloaded Cracked Games and Office Activator",
     "severity": "High",
     "status": "New",
     "assigned_to": "Unassigned",
     "created_date": "2026-05-02T10:23:00+08:00",
     "alert_ids": ["A-1002"],
+    "escalated": false
+  },
+  {
+    "incident_id": "INC-1004",
+    "title": "Adrian Naoe Opened Password File",
+    "severity": "High",
+    "status": "New",
+    "assigned_to": "Unassigned",
+    "created_date": "2026-05-02T10:32:00+08:00",
+    "alert_ids": ["A-1004"],
     "escalated": false
   },
   {

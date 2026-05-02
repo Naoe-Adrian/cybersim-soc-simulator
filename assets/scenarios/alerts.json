@@ -67,8 +67,10 @@
     "severity": "High",
     "mitre": "T1204 - User Execution",
     "kill_chain_phase": "Delivery",
-    "description": "A user downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
+    "description": "Adrian Naoe downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
     "rule": "IF downloaded_file_hash IN threat_intel_hashes AND file_name indicates cracked software THEN trigger high-severity malware delivery alert",
+    "user_display_name": "Adrian Naoe",
+    "username": "adrian.naoe",
     "threat_intel_matches": [
       {
         "file_name": "setup.exe",
@@ -85,7 +87,7 @@
     ],
     "hints": [
       "Confirm both SHA-256 values against threat intelligence.",
-      "Interview the user about cracked game and Office activator downloads.",
+      "Interview Adrian Naoe about cracked game and Office activator downloads.",
       "Check whether setup.exe or KMSAuto Net.exe executed or spawned child processes.",
       "Inspect proxy, EDR, and DNS logs for additional cracked-software indicators."
     ],
@@ -94,46 +96,110 @@
         "timestamp": "2026-05-02T10:21:11+08:00",
         "source_ip": "10.20.8.55",
         "destination_ip": "198.51.100.77",
-        "user": "msantos",
+        "user": "adrian.naoe",
         "action": "http_download",
         "status": "completed",
-        "raw_log": "proxy src=10.20.8.55 dst=198.51.100.77 user=msantos url=/games/fps-crack/setup.exe bytes=10025920"
+        "raw_log": "proxy src=10.20.8.55 dst=198.51.100.77 user=adrian.naoe display_name=\"Adrian Naoe\" url=/games/fps-crack/setup.exe bytes=10025920"
       },
       {
         "timestamp": "2026-05-02T10:21:18+08:00",
         "source_ip": "10.20.8.55",
         "destination_ip": "10.20.8.55",
-        "user": "msantos",
+        "user": "adrian.naoe",
         "action": "file_write",
         "status": "success",
-        "raw_log": "edr host=FIN-LT-044 path=C:\\Users\\msantos\\Downloads\\setup.exe sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144"
+        "raw_log": "edr host=FIN-LT-044 user=adrian.naoe display_name=\"Adrian Naoe\" path=C:\\Users\\adrian.naoe\\Downloads\\setup.exe sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144"
       },
       {
         "timestamp": "2026-05-02T10:21:26+08:00",
         "source_ip": "10.20.8.55",
         "destination_ip": "ti.local",
-        "user": "msantos",
+        "user": "adrian.naoe",
         "action": "hash_lookup",
         "status": "malicious_match",
-        "raw_log": "ti_lookup sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144 verdict=malicious family=GameHack source=threat_intel"
+        "raw_log": "ti_lookup user=adrian.naoe sha256=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144 verdict=malicious family=GameHack source=threat_intel"
       },
       {
         "timestamp": "2026-05-02T10:21:41+08:00",
         "source_ip": "10.20.8.55",
         "destination_ip": "203.0.113.88",
-        "user": "msantos",
+        "user": "adrian.naoe",
         "action": "second_download",
         "status": "completed",
-        "raw_log": "proxy src=10.20.8.55 dst=203.0.113.88 user=msantos url=/office2024/KMSAuto%20Net.exe sha256=3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb"
+        "raw_log": "proxy src=10.20.8.55 dst=203.0.113.88 user=adrian.naoe display_name=\"Adrian Naoe\" url=/office2024/KMSAuto%20Net.exe sha256=3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb"
       },
       {
         "timestamp": "2026-05-02T10:22:03+08:00",
         "source_ip": "10.20.8.55",
         "destination_ip": "10.20.8.55",
-        "user": "msantos",
+        "user": "adrian.naoe",
         "action": "alert_triggered",
         "status": "true",
-        "raw_log": "rule=cracked_software_malicious_hash host=FIN-LT-044 hashes=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144,3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb severity=high"
+        "raw_log": "rule=cracked_software_malicious_hash host=FIN-LT-044 user=adrian.naoe display_name=\"Adrian Naoe\" hashes=ba80c6caa66fd19d21c1d2d2883173c88df22352761e775106e5dc9d0fa33144,3c56387a047564ab68443d8c2f9f427933d5caa09354b60ebf1879a3f3862ceb severity=high"
+      }
+    ]
+  },
+  {
+    "alert_id": "A-1004",
+    "name": "Password File Opened",
+    "severity": "High",
+    "mitre": "T1552.001 - Credentials In Files",
+    "kill_chain_phase": "Credential Access",
+    "description": "Adrian Naoe opened a file named passwords.xlsx from the Documents folder, indicating possible exposure of stored credentials.",
+    "rule": "IF file_open path matches *password* OR *credentials* THEN trigger high-severity credential exposure alert",
+    "user_display_name": "Adrian Naoe",
+    "username": "adrian.naoe",
+    "hints": [
+      "Confirm whether passwords.xlsx contains real credentials.",
+      "Check file access history and whether the file was copied, uploaded, or emailed.",
+      "Identify accounts listed in the file and rotate exposed credentials.",
+      "Review endpoint activity before and after the file open event."
+    ],
+    "logs": [
+      {
+        "timestamp": "2026-05-02T10:31:04+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "adrian.naoe",
+        "action": "file_discovery",
+        "status": "success",
+        "raw_log": "edr host=FIN-LT-044 user=adrian.naoe display_name=\"Adrian Naoe\" action=directory_listing path=C:\\Users\\adrian.naoe\\Documents"
+      },
+      {
+        "timestamp": "2026-05-02T10:31:11+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "adrian.naoe",
+        "action": "password_file_open",
+        "status": "sensitive_file_access",
+        "raw_log": "edr host=FIN-LT-044 user=adrian.naoe display_name=\"Adrian Naoe\" action=file_open path=C:\\Users\\adrian.naoe\\Documents\\passwords.xlsx"
+      },
+      {
+        "timestamp": "2026-05-02T10:31:18+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "adrian.naoe",
+        "action": "office_process_start",
+        "status": "success",
+        "raw_log": "edr host=FIN-LT-044 user=adrian.naoe process=EXCEL.EXE file=C:\\Users\\adrian.naoe\\Documents\\passwords.xlsx"
+      },
+      {
+        "timestamp": "2026-05-02T10:31:37+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.30.21",
+        "user": "adrian.naoe",
+        "action": "smb_connection",
+        "status": "success",
+        "raw_log": "windows event=network_share_access src=10.20.8.55 dst=10.20.30.21 user=adrian.naoe share=\\\\10.20.30.21\\Finance"
+      },
+      {
+        "timestamp": "2026-05-02T10:31:55+08:00",
+        "source_ip": "10.20.8.55",
+        "destination_ip": "10.20.8.55",
+        "user": "adrian.naoe",
+        "action": "alert_triggered",
+        "status": "true",
+        "raw_log": "rule=password_file_opened host=FIN-LT-044 user=adrian.naoe display_name=\"Adrian Naoe\" sensitive_file=C:\\Users\\adrian.naoe\\Documents\\passwords.xlsx severity=high"
       }
     ]
   },
