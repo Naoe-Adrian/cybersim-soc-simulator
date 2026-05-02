@@ -67,10 +67,8 @@
     "severity": "High",
     "mitre": "T1204 - User Execution",
     "kill_chain_phase": "Delivery",
-    "description": "Adrian Naoe downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
+    "description": "A user downloaded cracked game and Microsoft Office activation files whose SHA-256 hashes matched threat intelligence indicators.",
     "rule": "IF downloaded_file_hash IN threat_intel_hashes AND file_name indicates cracked software THEN trigger high-severity malware delivery alert",
-    "user_display_name": "Adrian Naoe",
-    "username": "adrian.naoe",
     "threat_intel_matches": [
       {
         "file_name": "setup.exe",
@@ -87,7 +85,7 @@
     ],
     "hints": [
       "Confirm both SHA-256 values against threat intelligence.",
-      "Interview Adrian Naoe about cracked game and Office activator downloads.",
+      "Interview the user about cracked game and Office activator downloads.",
       "Check whether setup.exe or KMSAuto Net.exe executed or spawned child processes.",
       "Inspect proxy, EDR, and DNS logs for additional cracked-software indicators."
     ],
@@ -145,10 +143,8 @@
     "severity": "High",
     "mitre": "T1552.001 - Credentials In Files",
     "kill_chain_phase": "Credential Access",
-    "description": "Adrian Naoe opened a file named passwords.xlsx from the Documents folder, indicating possible exposure of stored credentials.",
+    "description": "A user opened a file named passwords.xlsx from the Documents folder, indicating possible exposure of stored credentials.",
     "rule": "IF file_open path matches *password* OR *credentials* THEN trigger high-severity credential exposure alert",
-    "user_display_name": "Adrian Naoe",
-    "username": "adrian.naoe",
     "hints": [
       "Confirm whether passwords.xlsx contains real credentials.",
       "Check file access history and whether the file was copied, uploaded, or emailed.",
