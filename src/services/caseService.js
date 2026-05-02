@@ -1,5 +1,5 @@
 export class CaseService {
-  static MAX_ALERTS = 5;
+  static MAX_ALERTS = 10;
 
   constructor({ alertsUrl, incidentsUrl, casesUrl, rulesUrl } = {}) {
     this.urls = { alertsUrl, incidentsUrl, casesUrl, rulesUrl };
